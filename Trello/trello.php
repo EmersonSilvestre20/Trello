@@ -2,9 +2,9 @@
 
 class trello
 {
-    private $key      = '2555c7c6e226209b0348197853352e06';
-    private $token      = 'ATTA3d8e29d82072bec85857c94b42e2003bd0b1a501bfd45b634bad01102af4818f188873DA';
-    private $endpoint   = 'https://api.trello.com/1';
+    private $key      = 'KEY_TRELLO';
+    private $token      = 'TOKEN_TRELLO';
+    private $endpoint   = 'ENDPOINT_TRELLO';
     private $header     = [];
     private $opt        = [];
     private $data       = [];
@@ -426,12 +426,12 @@ class trello
         return false;
     }
 }
-/*$trello = new Trello('2555c7c6e226209b0348197853352e06', 'ATTA3d8e29d82072bec85857c94b42e2003bd0b1a501bfd45b634bad01102af4818f188873DA', '65af88af3589e69e427e3de9');
+/*$trello = new Trello();
 
-$numero_rastreio = 957898401;
-$email = 'Bartolomeu20032023@gmail.com';
-$cliente = 'Bartolomeu Justino';
-$watsapp = 936032254;
+$numero_rastreio = ;
+$email = '';
+$cliente = '';
+$watsapp = ;
 $desc = "Dados do cliente
 E-mail: $email 
 Cliente: $cliente 
