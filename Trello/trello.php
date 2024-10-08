@@ -1,5 +1,5 @@
 <?php
-
+namespace Bartolomeu;
 class trello
 {
     private $key      = 'KEY_TRELLO';
@@ -16,7 +16,6 @@ class trello
     {
         curl_close($this->curl);
     }
-    
     public function __construct() {
         
         $this->key = defined('TRELLO_KEY') ? constant('TRELLO_KEY') : $this->key;
@@ -63,7 +62,7 @@ class trello
         return date('Y-m-d\TH:i:s.000\Z', $newTimestamp);
     }
 
-    public function getCard($cardname, $raw = true)#
+    public function getCard($cardname, $raw = true)
     {
         $this->opt[CURLOPT_CUSTOMREQUEST] = 'GET';
             
@@ -77,7 +76,7 @@ class trello
             return json_decode ($res, TRUE);
     }
 
-    public function getCardById($idcard, $raw = true)#
+    public function getCardById($idcard, $raw = true)
     {
         $this->opt[CURLOPT_CUSTOMREQUEST] = 'GET';
             
@@ -91,7 +90,7 @@ class trello
             return json_decode ($res, TRUE);
     }
 
-    public function getCardFromBoard($cardname, $boardname)#
+    public function getCardFromBoard($cardname, $boardname)
     {
         $cards = $this->getCard($cardname, false)['cards'];
         
@@ -106,7 +105,7 @@ class trello
         }
     }
     
-    public function getBoard($boardname, $raw = true)#
+    public function getBoard($boardname, $raw = true)
     {
         $this->opt[CURLOPT_CUSTOMREQUEST] = 'GET';
             
@@ -120,7 +119,7 @@ class trello
             return json_decode ($res, TRUE);
     }
 
-    public function getLists($boardname, $raw = true)#
+    public function getLists($boardname, $raw = true)
     {
         $board = $this->getBoard(urlencode($boardname), false);
         
@@ -141,32 +140,17 @@ class trello
             return json_decode ($res, TRUE);
     }
 
-    public function getList($lists, $listname, $raw = true)#
+    public function getList($lists, $listname, $raw = true)
     {
-        #die($listname);
         foreach ($lists as $i => $list) {
             if ($listname === $list['name'])
                 return $list;
         }
     }
     
-    public function setDate($idCard, $date, $interval, $raw = true)#
+    public function setDate($idCard, $date, $interval, $raw = true)
     {
-        /*Anos, meses e dias:
-        P1Y - 1 ano
-        P3M - 3 meses
-        P10D - 10 dias
-        P1Y2M5D - 1 ano, 2 meses e 5 dias
-        Horas, minutos e segundos:
-        PT1H - 1 hora
-        PT30M - 30 minutos
-        PT45S - 45 segundos
-        PT1H30M15S - 1 hora, 30 minutos e 15 segundos
-        Combinação de anos, meses, dias, horas, minutos e segundos:
-        P1Y2M10DT1H30M - 1 ano, 2 meses, 10 dias, 1 hora e 30 minutos*/
-        
-        #$date = ( isset($t['due']) && !empty($t['due']) ) ? $t['due'] : null;
-        
+
         $date = new DateTime($date);
         $interval = new DateInterval($interval);
         $newDate = $date->add($interval);
@@ -184,28 +168,6 @@ class trello
         else
             return json_decode ($res, TRUE);
     }
-
-    /*private function getBoard($idBoard)
-    {
-        $header = [
-            'Accept' => 'application/json'
-        ];
-
-        $opt = [
-            CURLOPT_URL => 'https://api.trello.com/1/boards/' . $idBoard . '?key=' . $this->key . '&token=' . $this->token,
-            CURLOPT_HEADER => false,
-            CURLOPT_HTTPHEADER => $header,
-            CURLOPT_RETURNTRANSFER => true
-        ];
-
-        $ch = curl_init();
-        curl_setopt_array($ch, $opt);
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        return json_decode($result, true);
-    }*/
-
     private function getCustomFields($idBoard)
     {
         $header = [
@@ -213,7 +175,7 @@ class trello
         ];
 
         $opt = [
-            CURLOPT_URL => 'https://api.trello.com/1/boards/' . $idBoard . '/customFields?key=' . $this->key . '&token=' . $this->token,
+            CURLOPT_URL => $this->endpoint. '/boards/' . $idBoard . '/customFields?key=' . $this->key . '&token=' . $this->token,
             CURLOPT_HEADER => false,
             CURLOPT_HTTPHEADER => $header,
             CURLOPT_RETURNTRANSFER => true
@@ -227,11 +189,9 @@ class trello
         return json_decode($res, true);
     }
 
-    private function searchCardName($cardName)
+    private function searchCardName($idBoard, $cardName)
     {
-        #$cardName = 'Paulo Rosa2';
-        $idBoard = "65af887d2374eea1a47198b9";
-        $url = "https://api.trello.com/1/boards/$idBoard/cards";
+        $url = $this->endpoint."/boards/$idBoard/cards";
 
         $params = [
             'key'   => $this->key,
@@ -284,7 +244,7 @@ class trello
         }
         $data = http_build_query($data);
         $opt = [
-            CURLOPT_URL => 'https://api.trello.com/1/cards/' . $idCard . '/customField/' . $idCustomField . '/item?key=' . $this->key . '&token=' . $this->token,
+            CURLOPT_URL => $this->endpoint. '/cards/' . $idCard . '/customField/' . $idCustomField . '/item?key=' . $this->key . '&token=' . $this->token,
             CURLOPT_HEADER => false,
             CURLOPT_HTTPHEADER => $header,
             CURLOPT_CUSTOMREQUEST => 'PUT',
@@ -302,7 +262,7 @@ class trello
     }
     private function data($idCard, $dateToSet)
     {
-        $url = "https://api.trello.com/1/cards/{$idCard}?key={$this->key}&token={$this->token}";
+        $url = $this->endpoint. "/cards/{$idCard}?key={$this->key}&token={$this->token}";
 
         $params = [
             'due' => $dateToSet,
@@ -352,48 +312,15 @@ class trello
 
         return json_decode($res, true);
     }
-
-    /*public function createCard($listId, $nome, $desc, $email, $cliente, $watsapp, $data = false)
-    {
-        $card = $this->addCard($listId , $nome, $desc);
-        $idCard = $card['id'];
-        $idBoard = $card['idBoard'];
-
-        $board = $this->getBoard($idBoard);
-        $cf = $this->getCustomFields($idBoard);
-        date_default_timezone_set('Africa/Luanda');
-        $initialDate = date('Y-m-d\TH:i:s.000\Z');
-        $newDate = $this->addDaysToDate($initialDate, 3);
-        if($data === true){
-            $this->data($idCard, $newDate);
-        }
-        
-
-        $idCampo = $this->getCustomFieldID($cf, 'E-mail');
-
-        $this->updateCustomField($idCard, $idCampo, $email);
-
-        $idCampo = $this->getCustomFieldID($cf, 'WhatsApp');
-        $this->updateCustomField($idCard, $idCampo, $watsapp);
-
-        $idCampo = $this->getCustomFieldID($cf, 'Cliente');
-        $this->updateCustomField($idCard, $idCampo, $cliente);
-
-        $res = [
-            'mensagem' => 'Pedido de cadastro registado com sucesso!'
-        ];
-
-        return $res;
-    }*/
     
-    public function createCard($listId, $nome, $desc, $dados) {
+    public function createCard($listId, $nome, $desc, $dados, $timezone = null) {
         $card = $this->addCard($listId, $nome, $desc);
         $idCard = $card['id'];
         $idBoard = $card['idBoard'];
 
         $board = $this->getBoard($idBoard);
         $cf = $this->getCustomFields($idBoard);
-        date_default_timezone_set('Africa/Luanda');
+        date_default_timezone_set($timezone);
         $initialDate = date('Y-m-d\TH:i:s.000\Z');
         $newDate = $this->addDaysToDate($initialDate, 3);
         if ($data === true) {
@@ -411,32 +338,15 @@ class trello
         return $res;
     }
 
-
     public function updatedate($nomeDoCartao, $daysToAdd)
     {
         $card = $this->searchCardName($nomeDoCartao);
-
         if ($card !== null) {
             $idCard = $card['id'];
             $newDate = $this->addDaysToDate($card['due'], $daysToAdd);
 
             return $this->data($idCard, $newDate);
         }
-
         return false;
     }
 }
-/*$trello = new Trello();
-
-$numero_rastreio = ;
-$email = '';
-$cliente = '';
-$watsapp = ;
-$desc = "Dados do cliente
-E-mail: $email 
-Cliente: $cliente 
-WhatsApp: $watsapp";
-
-$res = $trello->createCard($numero_rastreio, $desc, $email, $cliente, $watsapp);
-#$res = $trello->updatedate('936032254',10);
-var_dump($res);*/
